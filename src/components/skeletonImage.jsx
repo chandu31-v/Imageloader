@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import SkeletonLoader from "./skeletonLoader";
 //import LazyLoad from "react-lazyload";
 
@@ -7,21 +7,40 @@ function ImageLoader({ url, alt }) {
 
     const [imageLoaded, setImageLoaded] = useState(false)
     const [error, setError] = useState(false)
+    const imageRef = useRef()
 
     useEffect(() => {
-        setTimeout(() => {
 
-            //to handle case when images does not load
-            try {
-                setImageLoaded(true)
-                //throw error
-            } catch (e) {
-                setError(true)
+
+        const observer = new IntersectionObserver(
+            ([viewPoint]) => {
+                if (viewPoint.isIntersecting) {
+
+                    setTimeout(() => {
+
+                        //to handle case when images does not load
+                        try {
+                            setImageLoaded(true)
+                            //throw error
+                        } catch (e) {
+                            setError(true)
+                        }
+                    }, 3000)
+
+                    observer.unobserve(imageRef.current);
+                }
             }
-        }, 3000)
+        );
 
-        //clean up
+        if (imageRef.current) {
+            observer.observe(imageRef.current);
+        }
+
+        //clean up code
         return () => {
+            if (imageRef.current) {
+                observer.unobserve(imageRef.current);
+            }
             clearTimeout()
         }
 
@@ -41,6 +60,7 @@ function ImageLoader({ url, alt }) {
                         <img
                             src={url}
                             alt={alt}
+                            ref={imageRef}
                             className={`rounded-lg object-cover transition-opacity ease-in delay-75 duration-2000 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                         />}
 
