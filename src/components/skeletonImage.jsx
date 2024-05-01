@@ -6,7 +6,6 @@ function ImageLoader({ url, alt }) {
 
     const [imageLoaded, setImageLoaded] = useState(false)
     const [error, setError] = useState(false)
-    const [imageOnScreen, setImageOnScreen] = useState(false)
     const imageRef = useRef()
 
     useEffect(() => {
